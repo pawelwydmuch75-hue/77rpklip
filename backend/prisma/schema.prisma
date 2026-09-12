@@ -1,0 +1,124 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String?        @unique
+  password      String?
+  username      String         @unique
+  handle        String         @unique
+  avatarUrl     String?
+  bannerUrl     String?
+  bio           String?
+  discordId     String?        @unique
+  discordTag    String?
+  inGuild       Boolean        @default(true)
+  hasWl         Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  videos        Video[]
+  comments      Comment[]
+  likes         Like[]
+  subscriptions Subscription[] @relation("SubscriberRelation")
+  subscribers   Subscription[] @relation("ChannelRelation")
+  views         VideoView[]
+
+  @@map("users")
+}
+
+model Video {
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  videoUrl     String
+  thumbnailUrl String
+  duration     Int         @default(0)
+  viewsCount   Int         @default(0)
+  status       String      @default("PUBLISHED")
+  /// Tag serwera: "wl-off" | "wl-on" | null
+  serverTag    String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments     Comment[]
+  likes        Like[]
+  views        VideoView[]
+
+  @@map("videos")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Comment[] @relation("CommentReplies")
+
+  likes     Like[]
+
+  @@map("comments")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  isDislike Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId   String?
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@unique([userId, commentId])
+  @@map("likes")
+}
+
+model Subscription {
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+
+  subscriberId String
+  subscriber   User     @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  channelId    String
+  channel      User     @relation("ChannelRelation", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, channelId])
+  @@map("subscriptions")
+}
+
+model VideoView {
+  id        String   @id @default(uuid())
+  watchedAt DateTime @default(now())
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("video_views")
+}
