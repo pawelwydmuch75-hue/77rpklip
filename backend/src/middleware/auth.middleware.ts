@@ -24,6 +24,6 @@ export const authenticateToken = (
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Nieprawidłowy lub wygasły token.' });
+    return res.status(401).json({ message: 'Nieprawidłowy lub wygasły token. Zaloguj się ponownie.' });
   }
 };
