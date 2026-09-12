@@ -28,6 +28,7 @@ export default function UploadPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [uploadedId, setUploadedId] = useState('');
   const [dragging, setDragging] = useState(false);
+  const [showWlModal, setShowWlModal] = useState(false);
 
   const videoInputRef = useRef<HTMLInputElement>(null);
   const thumbInputRef = useRef<HTMLInputElement>(null);
@@ -269,9 +270,14 @@ export default function UploadPage() {
               {/* WL:ON - Dostępny tylko dla graczy ze zdaną Whitelist */}
               <button
                 type="button"
-                disabled={!user?.hasWl}
-                onClick={() => user?.hasWl && setServerTag('wl-on')}
-                title={!user?.hasWl ? 'Brak rangi Whitelist. Nie możesz publikować na WL:ON.' : 'Publikuj na serwerze WL:ON'}
+                onClick={() => {
+                  if (!user?.hasWl) {
+                    setShowWlModal(true);
+                  } else {
+                    setServerTag('wl-on');
+                  }
+                }}
+                title={!user?.hasWl ? 'Wymaga Whitelist — kliknij, aby dowiedzieć się więcej' : 'Publikuj na serwerze WL:ON'}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -282,8 +288,8 @@ export default function UploadPage() {
                   fontWeight: 800,
                   fontSize: 13,
                   letterSpacing: 1,
-                  cursor: user?.hasWl ? 'pointer' : 'not-allowed',
-                  opacity: user?.hasWl ? 1 : 0.45,
+                  cursor: 'pointer',
+                  opacity: user?.hasWl ? 1 : 0.65,
                   transition: 'all 0.2s',
                   borderColor: serverTag === 'wl-on' ? 'var(--accent)' : 'var(--border)',
                   background: serverTag === 'wl-on' ? 'var(--accent-soft)' : 'var(--bg-tertiary)',
@@ -344,6 +350,86 @@ export default function UploadPage() {
           {status === 'uploading' ? `Przesyłanie ${progress}%...` : 'Opublikuj film'}
         </button>
       </form>
+
+      {/* Modal braku uprawnień do publikacji na WL:ON */}
+      {showWlModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 20,
+          }}
+          onClick={() => setShowWlModal(false)}
+        >
+          <div
+            style={{
+              background: '#161616',
+              border: '1px solid #2a2a2a',
+              borderRadius: 16,
+              padding: '28px 24px',
+              maxWidth: 440,
+              width: '100%',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.9)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: '50%',
+                  background: 'rgba(255, 170, 0, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Lock size={22} color="#ffaa00" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>Brak dostępu do WL:ON</h3>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#ffaa00', background: 'rgba(255,170,0,0.1)', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginTop: 4 }}>
+                  77RP Gracz (WL:OFF)
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>
+              Nie posiadasz roli <strong>Whitelist</strong> na oficjalnym serwerze Discord 77RP.
+              <br /><br />
+              Aby publikować filmy w sekcji <strong>WL:ON</strong>, musisz pomyślnie zdać rekrutację Whitelist na serwerze i uzyskać status zweryfikowanego gracza.
+              <br /><br />
+              💡 Jako gracz WL:OFF możesz bez żadnych przeszkód publikować wszystkie swoje materiały w sekcji <strong>WL:OFF</strong>!
+            </p>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+              <a
+                href="https://discord.gg/77rp"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline"
+                style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13 }}
+              >
+                Discord 77RP
+              </a>
+              <button
+                className="btn-primary"
+                onClick={() => setShowWlModal(false)}
+                style={{ padding: '8px 20px', borderRadius: 8, fontSize: 13 }}
+              >
+                Rozumiem
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

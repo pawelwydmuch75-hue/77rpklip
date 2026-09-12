@@ -28,7 +28,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const isAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/discord');
-    if (error.response?.status === 401 && !isAuthRoute && typeof window !== 'undefined') {
+    const isUnauthorized = error.response?.status === 401 || error.response?.status === 403;
+    if (isUnauthorized && !isAuthRoute && typeof window !== 'undefined') {
       localStorage.removeItem('yt_token');
       localStorage.removeItem('yt_user');
       if (window.location.pathname !== '/login') {
