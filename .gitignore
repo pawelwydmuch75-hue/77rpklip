@@ -8,7 +8,6 @@ cloudflared.exe
 .env.production.local
 backend/dist/
 backend/node_modules/
-backend/.env
 backend/uploads/videos/*
 !backend/uploads/videos/.gitkeep
 backend/prisma/*.db

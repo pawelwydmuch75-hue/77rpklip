@@ -3,9 +3,9 @@ import axios from 'axios';
 export const getApiUrl = (): string => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined' && window.location.hostname.includes('surge.sh')) {
-    return 'https://springfield-agent-instrumentation-wallpaper.trycloudflare.com/api';
+    return 'https://seven7rpklip.onrender.com/api';
   }
-  return 'http://localhost:5000/api';
+  return 'https://seven7rpklip.onrender.com/api';
 };
 
 const api = axios.create({

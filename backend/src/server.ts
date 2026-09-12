@@ -10,6 +10,13 @@ import subscriptionRoutes from './routes/subscription.routes';
 
 dotenv.config();
 
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'file:./dev.db';
+}
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'super-secret-jwt-key-change-in-production';
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
